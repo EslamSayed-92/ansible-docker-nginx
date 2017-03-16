@@ -34,8 +34,6 @@ script:
   - docker inspect nginx | grep -q "Status.*running"
   # Check if container returning statis response
   - curl "http://localhost/" | grep -q "Container working"
-  # Check if container serve files
-  - curl "http://localhost/hello" | grep -q "Container working"
 
   # Run Idempotent test
   - ansible-playbook tests/test.yml -i tests/travis.hosts --connection=local | grep -q 'changed=0.*failed=0'
