@@ -1,5 +1,5 @@
-nginx-container
-=========
+docker-nginx
+======================
 [![Build Status](https://travis-ci.org/matic-insurance/ansible-nginx-container.svg?branch=master)](https://travis-ci.org/matic-insurance/ansible-nginx-container)
 
 Role used to download, configure and run nginx-alpine container
@@ -16,23 +16,29 @@ Role Variables
 
 Here is the list of Required variables with default values:
 ```yaml
-# Folder with all source files  on local machine
-nginx_files_local_folder: './files'
-# List of configuration files to be rendered into /etc/nginx/conf.d/ folder
-nginx_configuration_files: []
-# List of certificate files to be rendered into /etc/certs/
-nginx_certificate_files: []
-# List of nginx ports to be mapped
-nginx_ports_mapping: ['80:80']
+nginx_hosts:
+  - name:                        <- name of the host configuration
+    https: yes/no                <- whether nginx should handle SSL
+    ssl_certificate_bundle: path <- path to SSL certificate bundle,
+                                    only if https is yes
+    ssl_certificate_key: path    <- path to SSL certificate key,
+                                    only if https is yes
+    configuration_file: path     <- path to nginx configuration file
 ```
 These variables are optional and can be changed if needed
 ```yaml
+# Default source files location on local machine
+nginx_files_local_folder: './files'
+
 #Name of the container when it's running
 nginx_container_name: nginx
+
 #Settings path where rendered nginx files will be located
 nginx_settings_path: '{{ ansible_user_dir }}/{{ nginx_container_name }}'
+
 #Container memory limit
 container_memory_limit: 256m
+
 # Docker repository image and tag
 nginx_docker_image: nginx
 nginx_docker_image_tag: 1-alpine

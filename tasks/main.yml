@@ -1,24 +1,38 @@
 ---
-- name: Create nginx settings directory
-  file: path={{ nginx_settings_path }} state=directory
+- name: Create {{ item }} directory
+  file: path={{ nginx_settings_path }}/{{ item }} state=directory
+  with_items:
+    - 'conf.d'
+    - 'certs'
 
-- name: Create nginx configuration directory
-  file: path={{ nginx_settings_path }}/conf.d state=directory
-
-- name: Render config {{ item }}
-  template: src={{nginx_files_local_folder}}/{{ item }}.j2 dest={{ nginx_settings_path }}/conf.d/{{ item }}
-  with_items: '{{ nginx_configuration_files }}'
+- name: Render hosts nginx configs
+  template: >-
+    src={{ item.configuration_file }}
+    dest={{ nginx_settings_path }}/conf.d/{{ item.name }}.conf
+  with_items: '{{ nginx_hosts }}'
   notify:
     - Restart nginx
 
-- name: Create nginx certs directory
-  file: path={{ nginx_settings_path }}/certs state=directory
+- name: Create certificate directories
+  file: path={{ nginx_settings_path }}/certs/{{ item.name }} state=directory
+  with_items: '{{ nginx_hosts }}'
+  when: '{{ item.https }}'
 
-- name: Render certificate {{ item }}
+- name: Render hosts certificate bundles
   copy:
-    src: '{{nginx_files_local_folder}}/{{ item }}'
-    dest: '{{ nginx_settings_path }}/certs/{{ item }}'
-  with_items: '{{ nginx_certificate_files }}'
+    src: '{{ item.ssl_certificate_bundle }}'
+    dest: '{{ nginx_settings_path }}/certs/{{ item.name }}/bundle.crt'
+  with_items: '{{ nginx_hosts }}'
+  when: '{{ item.https }}'
+  notify:
+    - Restart nginx
+
+- name: Render hosts certificate keys
+  copy:
+    src: '{{ item.ssl_certificate_key }}'
+    dest: '{{ nginx_settings_path }}/certs/{{ item.name }}/bundle.key'
+  with_items: '{{ nginx_hosts }}'
+  when: '{{ item.https }}'
   notify:
     - Restart nginx
 
@@ -27,10 +41,10 @@
     name: '{{ nginx_container_name }}'
     image: '{{ nginx_docker_image }}:{{ nginx_docker_image_tag }}'
     state: started
+    network_mode: host
     restart_policy: always
     memory: '{{ container_memory_limit }}'
     volumes:
       - '{{ nginx_settings_path }}/conf.d:/etc/nginx/conf.d:ro'
       - '{{ nginx_settings_path }}/certs:/etc/certs:ro'
-    ports: '{{ nginx_ports_mapping }}'
   register: nginx_container
