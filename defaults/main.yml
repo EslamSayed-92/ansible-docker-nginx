@@ -1,14 +1,16 @@
 ---
 ###########################################################################
 #Required settings
-# Folder with all source files  on local machine
-nginx_files_local_folder: './files'
-# List of configuration files to be rendered into /etc/nginx/conf.d/ folder
-nginx_configuration_files: []
-# List of certificate files to be rendered into /etc/certs/
-nginx_certificate_files: []
-# List of nginx ports to be mapped
-nginx_ports_mapping: ['80:80']
+# List of managed hosts. Every host should contain:
+# - name:                        <- name of the host configuration
+#   https: yes/no                <- whether nginx should handle SSL
+#   ssl_certificate_bundle: path <- path to SSL certificate bundle,
+#                                   only if https is yes
+#   ssl_certificate_key: path    <- path to SSL certificate key,
+#                                   only if https is yes
+#   configuration_file: path     <- path to nginx configuration file
+
+nginx_hosts: []
 
 ###########################################################################
 # Optional settings

@@ -1,5 +1,5 @@
-nginx-container
-=========
+docker-nginx
+======================
 [![Build Status](https://travis-ci.org/matic-insurance/ansible-nginx-container.svg?branch=master)](https://travis-ci.org/matic-insurance/ansible-nginx-container)
 
 Role used to download, configure and run nginx-alpine container
